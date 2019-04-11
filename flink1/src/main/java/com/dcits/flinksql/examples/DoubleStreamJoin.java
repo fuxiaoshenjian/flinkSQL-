@@ -1,13 +1,16 @@
 package com.dcits.flinksql.examples;
 
+import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.typeutils.RowTypeInfo;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
+import org.apache.flink.types.Row;
 
-import com.dcits.flinksql.examples.StreamSQLExample.Order;
 
 public class DoubleStreamJoin {
     public static void main(String[] args) throws Exception {
@@ -16,29 +19,30 @@ public class DoubleStreamJoin {
         // 获取flink的运行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
-	   
+		env.setParallelism(3);
         String hostname = "127.0.0.1";
         String delimiter = "\n";
         // 链接socket获取输入的数据
 
         DataStreamSource<String> inputb = env.socketTextStream(hostname, port1, delimiter);
         DataStreamSource<String> inputa = env.socketTextStream(hostname, port, delimiter);
-        DataStream<Order> tablea = inputa.map(x->toOrder(x));
-        DataStream<Order> tableb = inputb.map(x->toOrder(x));
+        
+        TypeInformation[] fieldTypes =new TypeInformation[]{BasicTypeInfo.INT_TYPE_INFO,BasicTypeInfo.STRING_TYPE_INFO,BasicTypeInfo.INT_TYPE_INFO,};
+		//TypeInformation[] fieldTypes=null;
+		RowTypeInfo rowTypeInfo =new RowTypeInfo(fieldTypes);
+		//Row r = new Row()
+		DataStream<Row> tablea = inputa.map(x->toOrder(x)).returns(new RowTypeInfo(fieldTypes));;
+        DataStream<Row> tableb = inputb.map(x->toOrder(x)).returns(new RowTypeInfo(fieldTypes));
+		tableEnv.registerDataStream("tablea", tablea, "users, product, amount");
 		tableEnv.registerDataStream("tableb", tableb, "users, product, amount");
 
-		tableEnv.registerDataStream("tablea", tablea, "users, product, amount");
-		//Table tablea1 = tableEnv.sqlQuery("select * from tablea");
-		//tableEnv.toAppendStream(tablea1, Order.class);
-
-        Table result = tableEnv.sqlQuery("SELECT tablea.users,tableb.product,tablea.amount FROM tablea JOIN "
+        Table result = tableEnv.sqlQuery("SELECT * FROM tablea JOIN "
         		+ "tableb on tablea.amount = tableb.amount");
         
-        //.window(TumblingEventTimeWindows.of(Time.seconds(1L)));
         Table result1 = tableEnv.sqlQuery("SELECT count(tablea.users,tableb.product,tablea.amount) FROM tablea JOIN "
         		+ "tableb on tablea.amount = tableb.amount");
         //tableEnv.toRetractStream(result1, Long.class).print();
-        tableEnv.toAppendStream(result, Order.class).print();
+        tableEnv.toAppendStream(result, Row.class).print();
      // execute
         try {
 			env.execute();
@@ -49,11 +53,13 @@ public class DoubleStreamJoin {
 
     }
     
-    public static Order toOrder(String value){
-    	String[] x = value.split(",");
-    	long users =  Long.parseLong(x[0]);
-    	int amount = Integer.parseInt(x[2]);
-    	return new Order(users, x[1], amount);
+    public static Row toOrder(String value){
+    	String[] values = value.split(",");
+    	Row row = new Row(values.length);
+		for (int i = 0; i < values.length; i++) {
+			row.setField(i, values[i]);
+		}
+    	return row;
     }
 
     public static class WordIsCount{

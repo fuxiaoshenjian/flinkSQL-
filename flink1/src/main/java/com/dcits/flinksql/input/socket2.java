@@ -40,10 +40,12 @@ public class socket2 {
 	        try{
 	        PrintWriter serverPrintWriter = new PrintWriter(serverSocket.getOutputStream());
 	        // 如果输入bye，停止循环
+	        int x = 3;
 	        while (true){
-	        	
+	        	//Thread.sleep(10);
 	            // 向客户端输出字符串
-	            serverPrintWriter.println(factory("1,2,3"));
+	            serverPrintWriter.println("1,2,"+x);
+	            x++;
 	            // 刷新输出流
 	            serverPrintWriter.flush();
 	            // 在系统控制台上打印输入的内容；

@@ -1,4 +1,4 @@
-package com.dcits.flinksql;
+package com.dcits.flinksql.examples;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +28,10 @@ import org.apache.flink.types.Row;
 import akka.japi.tuple.Tuple3;
 
 import com.alibaba.fastjson.JSONObject;
-import com.dcits.flinksql.StreamSQLExample.Order;
+import com.dcits.flinksql.examples.StreamSQLExample.Order;
 
 
-public class StreamSqlDemo {
+public class StreamSqlKafka {
 
 	private static final String KAFKASERVER = "10.126.3.93:6667";
 	private static final String KAFKATOPIC = "WEBSOCKET";
@@ -42,44 +42,38 @@ public class StreamSqlDemo {
 		StreamTableEnvironment tableEnv = TableEnvironment.getTableEnvironment(env);
 	   
 		env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+	    String schema = "{\"id\":\"int\",\"name\":\"string\",\"score\":\"int\",\"currentTimeStamp\":\"long\"}";
+
 	 
-	        //{"id":"int","name":"string","score":"int","currentTimeStamp":"string"}
-	        //kafka schema
-	        String schema = "{\"id\":\"int\",\"name\":\"string\",\"score\":\"int\",\"currentTimeStamp\":\"long\"}";
-//	        JSONObject jsonObject = JSONObject.parseObject(schema); 
-	 
-	        Properties properties = new Properties();
-	        properties.setProperty("bootstrap.servers", KAFKASERVER);
-	        // only required for Kafka 0.8
-	        properties.setProperty("zookeeper.connect", "10.126.3.93:2181");
-	        properties.setProperty("group.id", "test");
+	    Properties properties = new Properties();
+	    properties.setProperty("bootstrap.servers", KAFKASERVER);
+	    properties.setProperty("zookeeper.connect", "10.126.3.93:2181");
+	    properties.setProperty("group.id", "test");
 	        //DataStream<String> stream = env
 	        //		.addSource(new FlinkKafkaConsumer08<>("topic", new SimpleStringSchema(), properties))
 //	        DataStream<Tuple3<Long, String, Integer>> ds = env.addSource(null, null);
 	
-	        FlinkKafkaConsumer<Map> myConsumer =
-	        	    new FlinkKafkaConsumer<>(KAFKATOPIC, new SchemaUT(), properties);
+	    FlinkKafkaConsumer<Map> myConsumer =
+		new FlinkKafkaConsumer<>(KAFKATOPIC, new SchemaUT(), properties);
 	        	    
-	        DataStream<Map> ds =  env.addSource(myConsumer);
-			DataStream<Order> orderB = env.fromCollection(Arrays.asList(
+	    DataStream<Map> ds =  env.addSource(myConsumer);
+	    DataStream<Order> orderB = env.fromCollection(Arrays.asList(
 					new Order(2L, "pen", 3),
 					new Order(2L, "rubber", 3),
 					new Order(4L, "beer", 1)));
 				// register DataStream as Table
-			tableEnv.registerDataStream("OrderB", orderB, "users, product, amount");
+		tableEnv.registerDataStream("OrderB", orderB, "users, product, amount");
 	        //Table table = tableEnv.fromDataStream(ds, "user");
-	        Table tableA = tableEnv.fromDataStream(ds, "users, product, amount");
-//	        Table result = tableEnv.sqlQuery("SELECT * FROM " + tableA + " WHERE amount > 2 UNION ALL " +
-//					"SELECT * FROM OrderB WHERE amount < 2");
-	       Table result = tableEnv.sqlQuery("select * from OrderB");
-	        tableEnv.toAppendStream(result, Order.class).print();
+	    Table tableA = tableEnv.fromDataStream(ds, "users, product, amount");
+	    Table result = tableEnv.sqlQuery("select * from OrderB");
+	    tableEnv.toAppendStream(result, Order.class).print();
 	     // execute
-	        try {
-				env.execute();
-			} catch (Exception e) {
+	    try {
+	    	env.execute();
+		} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			e.printStackTrace();
+		}
 
 	}
 
