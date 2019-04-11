@@ -31,8 +31,8 @@ public class DoubleStreamJoin {
 		//TypeInformation[] fieldTypes=null;
 		RowTypeInfo rowTypeInfo =new RowTypeInfo(fieldTypes);
 		//Row r = new Row()
-		DataStream<Row> tablea = inputa.map(x->toOrder(x)).returns(new RowTypeInfo(fieldTypes));;
-        DataStream<Row> tableb = inputb.map(x->toOrder(x)).returns(new RowTypeInfo(fieldTypes));
+		DataStream<Row> tablea = inputa.map(x->toRow(x)).returns(new RowTypeInfo(fieldTypes));;
+        DataStream<Row> tableb = inputb.map(x->toRow(x)).returns(new RowTypeInfo(fieldTypes));
 		tableEnv.registerDataStream("tablea", tablea, "users, product, amount");
 		tableEnv.registerDataStream("tableb", tableb, "users, product, amount");
 
@@ -53,12 +53,12 @@ public class DoubleStreamJoin {
 
     }
     
-    public static Row toOrder(String value){
+    public static Row toRow(String value){
     	String[] values = value.split(",");
     	Row row = new Row(values.length);
-		for (int i = 0; i < values.length; i++) {
-			row.setField(i, values[i]);
-		}
+    	row.setField(0, Integer.parseInt(values[0]));
+    	row.setField(1, values[1]);
+    	row.setField(2, Integer.parseInt(values[2]));
     	return row;
     }
 
