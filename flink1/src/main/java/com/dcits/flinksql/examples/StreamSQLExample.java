@@ -18,12 +18,17 @@
 
 package com.dcits.flinksql.examples;
 
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 
+import examples.async.AsyncDatabaseRequest;
+
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple example for demonstrating the use of SQL on a Stream Table in Java.
@@ -66,7 +71,6 @@ public class StreamSQLExample {
 						"SELECT * FROM OrderB WHERE amount < 2");
 
 		tEnv.toAppendStream(result, Order.class).print();
-
 		env.execute();
 	}
 

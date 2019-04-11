@@ -1,8 +1,12 @@
 package com.dcits.flinksql.examples;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.flink.api.common.typeinfo.BasicTypeInfo;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.typeutils.RowTypeInfo;
+import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -10,6 +14,8 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
+
+import examples.async.AsyncDatabaseRequest;
 
 
 public class DoubleStreamJoin {
@@ -26,7 +32,13 @@ public class DoubleStreamJoin {
 
         DataStreamSource<String> inputb = env.socketTextStream(hostname, port1, delimiter);
         DataStreamSource<String> inputa = env.socketTextStream(hostname, port, delimiter);
+		/***!!!!***/
         
+        DataStream<String> resultStream =
+        		AsyncDataStream.unorderedWait(inputb, new AsyncDatabaseRequest(), 3000, TimeUnit.MILLISECONDS, 100);
+        /***!!!!***/
+        inputb.print();
+        resultStream.print();
         TypeInformation[] fieldTypes =new TypeInformation[]{BasicTypeInfo.INT_TYPE_INFO,BasicTypeInfo.STRING_TYPE_INFO,BasicTypeInfo.INT_TYPE_INFO,};
 		//TypeInformation[] fieldTypes=null;
 		RowTypeInfo rowTypeInfo =new RowTypeInfo(fieldTypes);
@@ -42,7 +54,7 @@ public class DoubleStreamJoin {
         Table result1 = tableEnv.sqlQuery("SELECT count(tablea.users,tableb.product,tablea.amount) FROM tablea JOIN "
         		+ "tableb on tablea.amount = tableb.amount");
         //tableEnv.toRetractStream(result1, Long.class).print();
-        tableEnv.toAppendStream(result, Row.class).print();
+        //tableEnv.toAppendStream(result, Row.class).print();
      // execute
         try {
 			env.execute();
