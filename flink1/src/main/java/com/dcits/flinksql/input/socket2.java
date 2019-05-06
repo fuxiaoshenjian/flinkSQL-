@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 import org.apache.flink.api.common.time.Time;
 
@@ -24,7 +25,7 @@ public class socket2 {
 }
 	
 	public static void run(ServerSocket server){
-		System.out.println("重新开始 监听！");
+		System.out.println("开始 监听！");
 	      Socket serverSocket = null;
 	        try {
 	            // 使用accept()阻塞等待客户请求，有客户请求则产生一个Socket对象，并继续执行
@@ -40,12 +41,17 @@ public class socket2 {
 	        try{
 	        PrintWriter serverPrintWriter = new PrintWriter(serverSocket.getOutputStream());
 	        // 如果输入bye，停止循环
-	        int x = 1;
+	        int x = 0;
+	        //Thread.sleep(2000);
 	        while (true){
-	        	Thread.sleep(1000);
+	        	Random rand =new Random();
+	        	//Thread.sleep(200);
 	            // 向客户端输出字符串
-	            serverPrintWriter.println("1,2,"+x);
-	            System.out.println("1,2,"+x);
+	        	serverPrintWriter.println("1,2,"+x);
+//	        	if(x==10000){
+//	        		Thread.sleep(1000 * 60 * 6);
+//	        	}
+	            //System.out.println("1,2,"+x);
 	            x++;
 	            // 刷新输出流
 	            serverPrintWriter.flush();
@@ -54,8 +60,8 @@ public class socket2 {
 	            // 继续输入然后重新读取字符串
 	        }
 		}catch (Exception e){
-			run(server);
-			System.out.println(e);
+//			run(server);
+			e.printStackTrace();
 		}
 	}
 	public static String factory(String x){

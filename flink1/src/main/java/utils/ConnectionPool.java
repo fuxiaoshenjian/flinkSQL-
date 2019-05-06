@@ -26,16 +26,16 @@ public class ConnectionPool {
                             psw
                     );
                     connectionQueue.push(conn);
-                    System.out.println("连接池中创建5条连接。 此时池中剩余连接个数为 ："+connectionQueue.size());
                 }
             }
         }catch (Exception e) {
             e.printStackTrace();
         }
-        return connectionQueue.poll();
+        Connection conn = connectionQueue.poll();
+        return conn;
     }
 
-    public static void returnConnection(Connection conn) {
+    public synchronized static void returnConnection(Connection conn) {
         connectionQueue.push(conn);
     }
 }

@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Random;
 
 public class socket {
 	public static void main(String[] args){
@@ -38,13 +39,16 @@ public class socket {
 	        try{
 	        PrintWriter serverPrintWriter = new PrintWriter(serverSocket.getOutputStream());
 	        // 如果输入bye，停止循环
-	        int x = 1;
+	        int x = 100*1000;
+	        //Thread.sleep(2000);
 	        while (true){
-	        	Thread.sleep(1000);
+	        	Random rand =new Random();
+	        	//Thread.sleep(200);
 	            // 向客户端输出字符串
+	        	
 	            serverPrintWriter.println("1,2,"+x);
-	            System.out.println("1,2,"+x);
-	            x++;
+	            //System.out.println("1,2,"+x);
+	            x--;
 	            // 刷新输出流
 	            serverPrintWriter.flush();
 	            // 在系统控制台上打印输入的内容；

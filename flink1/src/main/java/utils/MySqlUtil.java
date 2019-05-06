@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 
 import utils.PropertyUtil;
 
-public class MysqlUtil {
+public class MySqlUtil {
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
     public static String DB_URL; 
 
@@ -18,21 +18,22 @@ public class MysqlUtil {
     public static String PASS;
     
     static{
-    	DB_URL = PropertyUtil.get("DB_URL").endsWith("/")?PropertyUtil.get("DB_URL")+"test":PropertyUtil.get("DB_URL")+"/test";//"jdbc:mysql://10.126.3.180:3306/iotmp";
-	    USER = PropertyUtil.get("DB_USER");
+    	DB_URL = PropertyUtil.get("DB_URL").endsWith("/")?PropertyUtil.get("DB_URL")+"ods":PropertyUtil.get("DB_URL")+"/ods";
+        DB_URL+="?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false";
+    	USER = PropertyUtil.get("DB_USER");
 	    PASS = PropertyUtil.get("DB_PSW");
     }
     
 	public ResultSet executeQuery(String sql) {
 		// TODO Auto-generated method stub
-		MysqlUtil mysql = new MysqlUtil();
 		Connection conn = ConnectionPool.getConnection(DB_URL, USER,PASS);
-		return query(sql, conn);
+		ResultSet rs = query(sql, conn);
+		ConnectionPool.returnConnection(conn);
+		return rs;
         
 	}
 
 	public ResultSet query(String sql, Connection conn){
-		long startTime=System.currentTimeMillis();
 		if(conn==null){
 			System.out.println("ERROR!conn为空，"+sql);
 			return null;
@@ -45,9 +46,7 @@ public class MysqlUtil {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}            
-	    long time=System.currentTimeMillis() - startTime; 
-	    System.out.println("查询完毕，执行"+sql+" 耗时"+time+"ms");
+		}
         return rs;
 	    
 	   
@@ -88,7 +87,7 @@ public class MysqlUtil {
                     pstmt.setObject(i + 1, param[i]); // 为预编译sql设置参数
                 }
             }
-        pstmt.execute(); // 执行SQL语句
+        pstmt.execute(); /**执行SQL*/
         } catch (SQLException e) {
             e.printStackTrace(); // 处理SQLException异常
         } 

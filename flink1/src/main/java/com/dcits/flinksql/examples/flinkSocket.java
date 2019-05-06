@@ -15,7 +15,7 @@ import org.apache.flink.table.api.TableEnvironment;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.util.Collector;
 
-import com.dcits.flinksql.examples.StreamSQLExample.Order;
+//import com.dcits.flinksql.examples.StreamSQLExample.Order;
 
 public class flinkSocket {
     public static void main(String[] args) throws Exception {

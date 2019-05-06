@@ -1,4 +1,6 @@
 package utils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -10,6 +12,7 @@ import java.util.Properties;
 
 
 public class PropertyUtil{
+	private final static Log log = LogFactory.getLog(PropertyUtil.class);
 	private static final String PROPERTIES_NAME = "src/resources/base.properties";
 	public static String DB_DRIVER = null;
 	public static String DB_URL = null;
@@ -20,11 +23,11 @@ public class PropertyUtil{
 		FileInputStream in = null;
 		try{
 			properties = new Properties();
-			
+
 			InputStream ips;
-			InputStream is=PropertyUtil.class.getClassLoader().getResourceAsStream("base.properties");  
-			BufferedReader br=new BufferedReader(new InputStreamReader(is));  
-			
+			InputStream is=PropertyUtil.class.getClassLoader().getResourceAsStream("base.properties");
+			BufferedReader br=new BufferedReader(new InputStreamReader(is));
+
 			properties.load(br);//jar包中
 			System.out.println("读取配置信息成功！");
 		}catch(Exception e){
@@ -40,16 +43,17 @@ public class PropertyUtil{
 			}
 		}
 	}
-	
+
 	public static String get(String key){
 		return properties.getProperty(key);
 	}
-	
+
 	public static String[] getTopics(){
 		return get("topic").split(",");
 	}
 	public static void main(String[] args){
-		System.out.println(get("sparkMaster"));
+
+		log.error("fuck");
 	}
 
 	public static String getConf(String string) {

@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;  
 import java.util.concurrent.FutureTask;
 
-import utils.MysqlUtil;  
+import utils.MySqlUtil;
   
 public class FutureTaskForMultiCompute {  
       
@@ -73,7 +73,7 @@ public class FutureTaskForMultiCompute {
         	
             // 休眠5秒钟，观察主线程行为，预期的结果是主线程会继续执行，到要取得FutureTask的结果是等待直至完成。  
 //            Thread.sleep(5000); 
-        	MysqlUtil mysql = new MysqlUtil();
+        	MySqlUtil mysql = new MySqlUtil();
         	ResultSet rs = mysql.executeQuery("select * from orders");
         	rs.last();
             //获取当前行编号
